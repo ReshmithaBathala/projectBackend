@@ -81,28 +81,8 @@ app.post("/login", async (request, response) => {
   }
 });
 
-const authenticateKey = (request, response, next) => {
-  let jwtToken;
-  const authHeader = request.headers["authorization"];
-  if (authHeader !== undefined) {
-    jwtToken = authHeader.split(" ")[1];
-  }
-  if (jwtToken === undefined) {
-    response.status(401);
-    response.send("Invalid JWT Token");
-  } else {
-    jwt.verify(jwtToken, "SECRET_TOKEN", async (error, payload) => {
-      if (error) {
-        response.status(401);
-        response.send("Invalid JWT Token");
-      } else {
-        next();
-      }
-    });
-  }
-};
 
-app.get("/", authenticateKey, async (request, response) => {
+app.get("/", async (request, response) => {
   const getShipmentQuery = `
     SELECT
       *
@@ -112,7 +92,7 @@ app.get("/", authenticateKey, async (request, response) => {
   response.send(shipmentsArray);
 });
 
-app.post("/courier/", authenticateKey, async (request, response) => {
+app.post("/courier/", async (request, response) => {
   const courierDetails = request.body;
   const {
     TrackingNumber,
@@ -138,7 +118,7 @@ VALUES (
   response.send("Added successfully");
 });
 
-app.put("/courier/:courierId", authenticateKey, async (request, response) => {
+app.put("/courier/:courierId", async (request, response) => {
   const courierId = request.params;
   const courierDetails = request.body;
   const {
@@ -168,7 +148,6 @@ Shipments SET
 
 app.delete(
   "/courier/:courierId",
-  authenticateKey,
   async (request, response) => {
     const { courierId } = request.params;
     const deleteCourierQuery = `
